@@ -1,0 +1,30 @@
+# Core AI & Orchestration
+langchain>=0.1.0
+langchain-community>=0.0.10
+langchain-openai>=0.0.5
+
+# Vector Database (Local)
+chromadb>=0.4.0
+
+# PDF Processing
+pypdf>=4.0.0
+# unstructured[pdf]  # Commented out to keep initial install light, uncomment if pypdf fails on tables
+
+# Evaluation Models (Local)
+sentence-transformers>=2.3.0
+torch>=2.0.0
+
+# NLP & Text
+nltk>=3.8.1
+
+# Visualization & Reporting
+plotly>=5.18.0
+matplotlib>=3.8.0
+python-docx>=1.0.0  # For generating the final Word deliverable
+
+# Utilities
+python-dotenv>=1.0.0
+pandas>=2.1.0
+pydantic>=2.5.0
+tqdm>=4.66.0
+jupyter>=1.0.0
