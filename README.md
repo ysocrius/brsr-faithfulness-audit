@@ -1,70 +1,118 @@
-# Faithful Concept Mapper: BRSR Faithfulness Audit
+# BRSR Faithfulness Audit
 
-An AI-powered system that audits corporate Business Responsibility and Sustainability Reports (BRSR) for faithfulness against SEBI mandates. This project primarily focuses on **Principle 6 (Environmental Responsibilities)**.
+An AI-powered system for auditing corporate Business Responsibility and Sustainability Reports (BRSR) against SEBI Principle 6 (Environmental Responsibilities). This project ensures compliance by detecting "drift" between reported disclosures and regulatory mandates.
 
-## 🚀 Features
+## 🎯 Overview
 
-*   **Ingestion Engine (`src/ingest.py`)**: Loads complex PDFs, preserves page numbers, and chunks text for analysis.
-*   **Structued Extraction**: Uses OpenAI GPT-4o (via LangChain) to extract specific metrics (Emissions Sc 1/2, Water Intensity, Waste) into a strict Pydantic Schema.
-*   **Verification Engine (`src/eval.py`)**: A "Veritas-style" evaluation module that calculates **Drift Scores (0-3)** by comparing extracted claims against SEBI requirements using local BERT models (`nli-deberta-v3-small`).
-*   **Automated Reporting (`src/report.py`)**: Generates a professional Word document (`.docx`) with the audit findings.
+This system audits how faithfully companies report their environmental metrics (Emissions, Water, Waste) by:
+1. **Extracting** structured data from BRSR PDFs using GPT-4o
+2. **Evaluating** faithfulness using local NLI models (drift scoring 0-3)
+3. **Visualizing** evidence flows with Sankey diagrams
+4. **Generating** automated audit reports with color-coded dashboards
+
+## 📊 Sankey Diagram: Evidence Flow
+
+![BRSR Audit Flow](output/newplot.png)
+
+*Visualization showing the flow from SEBI Requirements → Company Disclosures → Drift Scores*
+
+## ✨ Key Features
+
+- **🔍 Structured Extraction**: Pydantic V2 schemas enforce strict data types (no hallucinations)
+- **📏 Drift Evaluation**: 0-3 scale using NLI cross-encoders (nli-deberta-v3-small)
+- **📝 Automated Reporting**: Generates Word documents with color-coded drift dashboards
+- **🎨 Interactive Visualizations**: Sankey diagrams for evidence flow analysis
+- **🔗 Citation Support**: Links claims to source text with page numbers
+- **🚫 Non-Hallucination Proof**: Evidence-based justification for each metric
+
+## 🏗️ Architecture
+
+**Hybrid RAG Approach:**
+- **DataWeave**: Structured extraction with AI agents
+- **Veritas**: Groundedness evaluation using NLI models
+- **CalQuity**: Citation engine with page-level metadata
 
 ## 🛠️ Tech Stack
 
-*   **Language**: Python 3.10+
-*   **AI/LLM**: OpenAI GPT-4o, Sentence Transformers (Local BERT)
-*   **Orchestration**: LangChain
-*   **Vector Query**: ChromaDB (Ready for RAG expansion)
-*   **Validation**: Pydantic V2
-*   **Visualization**: Plotly (Sankey Diagrams)
+- **Language**: Python 3.10+
+- **AI/LLM**: OpenAI GPT-4o, Sentence Transformers
+- **Orchestration**: LangChain
+- **Vector DB**: ChromaDB (ready for RAG expansion)
+- **Validation**: Pydantic V2
+- **Visualization**: Plotly
+- **Reporting**: python-docx
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.10+
+- OpenAI API key
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ysocrius/brsr-faithfulness-audit.git
+cd brsr-faithfulness-audit
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Add your OpenAI API key to .env
+```
+
+### Usage
+
+**Option 1: Interactive Analysis (Recommended)**
+```bash
+jupyter notebook notebooks/02_analysis.ipynb
+```
+
+**Option 2: Generate Report Directly**
+```bash
+python -m src.report
+```
+
+Output will be saved to `output/BRSR_Faithfulness_Audit_SUBMISSION.docx`
 
 ## 📂 Project Structure
 
 ```
-├── data/                   # Input PDFs (e.g., target_report.pdf)
-├── output/                 # Generated Deliverables (Word Report)
+├── data/                   # Input PDFs
+├── output/                 # Generated reports and visualizations
 ├── src/
-│   ├── ingest.py           # PDF Ingestion & Extraction Logic
-│   ├── eval.py             # Evaluation & Drift Calculation
-│   ├── schema.py           # Pydantic Models (Principle 6)
-│   └── report.py           # Word Report Generator
+│   ├── ingest.py          # PDF ingestion & extraction
+│   ├── eval.py            # Drift evaluation engine
+│   ├── schema.py          # Pydantic models (Principle 6)
+│   └── report.py          # Word report generator
 ├── notebooks/
-│   ├── 01_ingest.ipynb     # Interactive Extraction Demo
-│   └── 02_analysis.ipynb   # Full Pipeline Analysis & Visualization
-├── requirements.txt        # Dependencies
-└── .env                    # API Keys and Config
+│   ├── 01_ingest.ipynb    # Extraction demo
+│   └── 02_analysis.ipynb  # Full pipeline + Sankey diagram
+└── requirements.txt
 ```
 
-## ⚡ How to Run
+## 📋 Deliverables
 
-1.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+- ✅ **Drift Scores**: 0 (Verbatim) to 3 (Hallucinated/Missing)
+- ✅ **Citations**: Page-level evidence from source documents
+- ✅ **Non-Hallucination Justification**: Evidence-based rationale
+- ✅ **Sankey Diagram**: Visual evidence flow
+- ✅ **Color-Coded Dashboard**: Green/Orange/Red drift indicators
 
-2.  **Configure Environment**:
-    Create a `.env` file with your OpenAI Key:
-    ```
-    OPENAI_API_KEY=sk-proj-...
-    ```
+## 🎓 AI/RAG Concepts Employed
 
-3.  **Run Analysis (Interactive)**:
-    Open `notebooks/02_analysis.ipynb` and Run All cells.
-
-4.  **Generate Report (Automated)**:
-    Run the reporter script to get the Word doc:
-    ```bash
-    python src/report.py
-    ```
-    Find the report in `output/Faithfulness_Audit_Report.docx`.
-
-## 📊 Methodology
-
-1.  **Extraction Strategy**: Used a "DataWeave-inspired" agentic approach where specific schemas enforce data quality (preventing hallucinated units).
-2.  **Metric Calculation**:
-    *   **Drift Score 0**: Entailment (High confidence match).
-    *   **Drift Score 2**: Neutral (Data present but abstract).
-    *   **Drift Score 3**: Contradiction (Data missing or hallucinated).
+1. **Structured Extraction**: Schema enforcement via Pydantic V2
+2. **RAG Chunking**: RecursiveCharacterTextSplitter with page metadata
+3. **NLI Evaluation**: Zero-shot classification for groundedness
+4. **Drift Detection**: Cross-encoder models for entailment scoring
 
 ## 📄 License
-Academic / Portfolio Use.
+
+Academic / Portfolio Use
+
+## 🙏 Acknowledgments
+
+- SEBI for BRSR framework
+- Reference projects: Veritas Pipeline, DataWeave TurerZ, CalQuity AI Chat
